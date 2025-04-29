@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target-node: [14, 16, 18]
+        target-node: [16]
         target-arch: [arm64]
         include:
           - target-arch: arm64
@@ -48,7 +48,7 @@ jobs:
         run: |
           (test -f root/pkg-fetch/dist/*.sha256sum && echo ::set-output name=EXISTS::true) || echo ::set-output name=EXISTS::false
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: steps.check_file.outputs.EXISTS == 'true'
         with:
           name: node${{ matrix.target-node }}-linuxstatic-${{ matrix.target-arch }}

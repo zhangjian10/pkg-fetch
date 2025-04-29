@@ -254,17 +254,6 @@ index 0000000000..fb2d47f52b
      } catch (e) {
        throw e; /* node-do-not-add-exception-line */
      }
---- node/src/inspector_agent.cc
-+++ node/src/inspector_agent.cc
-@@ -690,8 +690,6 @@ bool Agent::Start(const std::string& path,
-                               StartIoThreadAsyncCallback));
-     uv_unref(reinterpret_cast<uv_handle_t*>(&start_io_thread_async));
-     start_io_thread_async.data = this;
--    // Ignore failure, SIGUSR1 won't work, but that should not block node start.
--    StartDebugSignalHandler();
- 
-     parent_env_->AddCleanupHook([](void* data) {
-       Environment* env = static_cast<Environment*>(data);
 --- node/src/node.cc
 +++ node/src/node.cc
 @@ -473,6 +473,8 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -276,31 +265,6 @@ index 0000000000..fb2d47f52b
    if (env->worker_context() != nullptr) {
      return StartExecution(env, "internal/main/worker_thread");
    }
-@@ -583,13 +585,6 @@ static struct {
- 
- inline void PlatformInit() {
- #ifdef __POSIX__
--#if HAVE_INSPECTOR
--  sigset_t sigmask;
--  sigemptyset(&sigmask);
--  sigaddset(&sigmask, SIGUSR1);
--  const int err = pthread_sigmask(SIG_SETMASK, &sigmask, nullptr);
--#endif  // HAVE_INSPECTOR
--
-   // Make sure file descriptors 0-2 are valid before we start logging anything.
-   for (auto& s : stdio) {
-     const int fd = &s - stdio;
-@@ -605,10 +600,6 @@ inline void PlatformInit() {
-       ABORT();
-   }
- 
--#if HAVE_INSPECTOR
--  CHECK_EQ(err, 0);
--#endif  // HAVE_INSPECTOR
--
-   // TODO(addaleax): NODE_SHARED_MODE does not really make sense here.
- #ifndef NODE_SHARED_MODE
-   // Restore signal dispositions, the parent process may have changed them.
 --- node/src/node_contextify.cc
 +++ node/src/node_contextify.cc
 @@ -74,6 +74,7 @@ using v8::ScriptOrModule;
