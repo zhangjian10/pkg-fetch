@@ -46,7 +46,7 @@ jobs:
           path: dist/*
 
   linux-arm64:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-arm
 
     strategy:
       fail-fast: false
@@ -69,8 +69,7 @@ jobs:
             PKG_FETCH_OPTION_a=arm64
             PKG_FETCH_OPTION_n=node${{ matrix.target-node }}
           context: .
-          file: ./Dockerfile.linuxcross
-          platforms: linux/amd64
+          file: ./Dockerfile.linux
           outputs: type=local, dest=dist
 
       - name: Check if binary is compiled, skip if download only
